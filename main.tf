@@ -10,6 +10,7 @@ resource "aws_rds_cluster" "main" {
   db_subnet_group_name = aws_db_subnet_group.main.name
   skip_final_snapshot     = true
   vpc_security_group_ids  = [aws_security_group.main.id]
+ 
 
  tags = merge(
       var.tags,
@@ -45,14 +46,14 @@ resource "aws_security_group" "main" {
 }
 
 resource "aws_security_group" "main" {
-  name        = "elasticache-${var.env}"
-  description = "elasticache-${var.env}"
+  name        = "rds-${var.env}"
+  description = "rds-${var.env}"
   vpc_id      = var.vpc_id
 
   ingress {
-    description = "ELASTICACHE"
-    from_port   = 6379
-    to_port     = 6379
+    description = "RDS"
+    from_port   = 3306
+    to_port     = 3306
     protocol    = "tcp"
     cidr_blocks = var.allow_subnets
   }
@@ -67,7 +68,7 @@ resource "aws_security_group" "main" {
 
   tags = merge(
     var.tags,
-    { Name = "elasticache-${var.env}" }
+    { Name = "rds-${var.env}" }
   )
 }
 
@@ -91,4 +92,10 @@ resource "aws_db_subnet_group" "main" {
       var.tags,
         { Name = "${var.env}-subnet-group" }
     )
+}
+
+resource "aws_ssm_parameter" "rds_endpoint" {
+  name  = "${var.env}.rds.endpoint"
+  type  = "String"
+  value = aws_rds_cluster.main.endpoint
 }
