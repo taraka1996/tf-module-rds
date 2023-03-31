@@ -13,3 +13,4 @@ variable "no_of_instances" {}
 variable "instance_class" {}
 variable "vpc_id" {}
 variable "allow_subnets" {}
+variable "vpc_id" {}
